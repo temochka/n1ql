@@ -1,6 +1,6 @@
 module N1ql
   module Ast
-    class Node < SimpleDelegator
+    class Node < ::SimpleDelegator
     end
   end
 end
