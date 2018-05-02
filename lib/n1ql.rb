@@ -1,3 +1,4 @@
+require 'delegate'
 require 'json'
 require 'monitor'
 require 'parslet'
