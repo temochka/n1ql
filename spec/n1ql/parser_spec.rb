@@ -183,7 +183,8 @@ RSpec.describe N1ql::Parser do
       it { is_expected.to parse('COUNT(*)').as(function: { name: 'COUNT' }, arguments: [{ path: { name: '*' } }]) }
       it { is_expected.to parse('42').as(integer: '42') }
       it { is_expected.to parse('NOT flag').as(op_not: { path: { name: 'flag' } }) }
-      it { is_expected.to parse('?name?').as(placeholder: 'name') }
+      it { is_expected.to parse('$name').as(parameter: { name: 'name' }) }
+      it { is_expected.to parse('$object.value').as(parameter: [{ name: 'object' }, { name: 'value' }]) }
 
       %w(/ * + - % LIKE).each do |op|
         it { is_expected.to parse("age #{op} 2").as(o: op, l: { path: { name: 'age' } }, r: { integer: '2' }) }

@@ -5,16 +5,15 @@ module N1ql
     def initialize(text)
       @text = text
       @parser = Parser.new
-      @bindings = Bindings.new
-      @precompiler = Precompiler.new(bindings: @bindings)
+      @precompiler = Precompiler.new
       @ast = @precompiler.apply(@parser.parse(@text), bindings: @bindings)
       @titles = extract_titles(@ast)
     rescue Parslet::ParseFailed => error
       raise ParserError, error.parse_failure_cause.ascii_tree
     end
 
-    def compile(bindings = {})
-      @bindings.with_values(bindings) { @ast.to_json }
+    def compile
+      @ast.to_json
     end
 
     private

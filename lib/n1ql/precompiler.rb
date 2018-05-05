@@ -11,7 +11,6 @@ module N1ql
     rule(object: subtree(:fields)) { Ast::Node.new(fields.to_h) }
     rule(function: simple(:name), arguments: sequence(:arguments)) { Ast::Node.new([name, *arguments]) }
     rule(function: simple(:name), arguments: simple(:argument)) { Ast::Node.new([name, argument]) }
-    rule(placeholder: simple(:name)) { Ast::Placeholder.new(name, bindings) }
 
     rule(o: simple(:o), l: subtree(:l), r: subtree(:r)) { Ast::Node.new([o, l, r]) }
 
@@ -19,6 +18,8 @@ module N1ql
     rule(index: simple(:index)) { Ast::Lookup.new(index) }
     rule(path: sequence(:names)) { Ast::Path.new(names) }
     rule(path: simple(:name)) { Ast::Path.new([name]) }
+    rule(parameter: sequence(:names)) { Ast::Path.new(names, '$') }
+    rule(parameter: simple(:name)) { Ast::Path.new([name], '$') }
 
     rule(as: simple(:as)) { Ast::Node.new(as: as) }
     rule(as: simple(:as), on: simple(:on)) { Ast::Node.new(as: as, on: on) }

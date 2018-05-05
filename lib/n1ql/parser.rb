@@ -135,9 +135,6 @@ module N1ql
     # 6. NULL
     rule(:null) { keyword('NULL', as: :null) }
 
-    # Placeholders
-    rule(:placeholder) { str('?') >> unescaped_name.as(:placeholder) >> str('?') }
-
     # Names
     rule(:escaped_name) { backtick.ignore >> (backtick.absent? >> any).repeat(1) >> backtick.ignore }
     rule(:unescaped_name) { match('[a-zA-Z]') >> match('[\w\_]').repeat }
@@ -145,13 +142,14 @@ module N1ql
     rule(:simple_name) { name >> op_dot.absent? }
     rule(:_path) { (name >> op_lookup.repeat(0, 1) | star.as(:name)) >> (op_dot >> _path).repeat }
     rule(:path) { _path.as(:path) }
+    rule(:parameter) { (str('$').ignore >> _path).as(:parameter) }
 
     # Functions
     rule(:arguments) { (expression >> comma).repeat >> expression.repeat(1, 1) }
     rule(:function) { name.as(:function) >> lparen >> arguments.as(:arguments) >> rparen }
 
     # Expressions
-    rule(:operand) { placeholder | type_literal | complex_operator | function | path }
+    rule(:operand) { parameter | type_literal | complex_operator | function | path }
 
     # Parslet expects precedence while N1QL docs use order of operation.
     # Higher precedence means lower order of operation.

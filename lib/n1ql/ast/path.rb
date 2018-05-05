@@ -1,18 +1,19 @@
 module N1ql
   module Ast
     class Path
-      attr_reader :names
+      attr_reader :names, :operator
 
-      def initialize(names)
-        @names = names
+      def initialize(names, operator = '.')
+        @names = names.reject(&:empty?)
+        @operator = operator
       end
 
       def id
-        @names.last&.id
+        @names.last&.id || ''
       end
 
       def compile
-        names.map(&:compile).unshift('.')
+        names.map(&:compile).unshift(operator)
       end
 
       def ==(other)

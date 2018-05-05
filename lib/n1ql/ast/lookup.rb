@@ -11,6 +11,10 @@ module N1ql
         nil
       end
 
+      def empty?
+        false
+      end
+
       def compile
         [index]
       end

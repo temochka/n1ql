@@ -28,14 +28,6 @@ RSpec.describe N1ql::Query do
         with_titles('name', 'size')
     end
 
-    it 'replaces placeholders with given values' do
-      is_expected.to compile_n1ql('SELECT ?number?, ?string?, name FROM furniture WHERE name LIKE ?query?',
-                                  number: 42, string: 'string', query: 'd%').
-        to(WHAT: [42, 'string', %w(. name)],
-           FROM: [{ as: 'furniture' }],
-           WHERE: ['LIKE', %w(. name), 'd%'])
-    end
-
     let(:lesson_1_1) do
       <<-SQL
         SELECT 'Hello World' AS Greeting
@@ -58,7 +50,7 @@ RSpec.describe N1ql::Query do
 
     it 'parses lesson 1.2 query' do
       is_expected.to compile_n1ql(lesson_1_2).
-        to(WHAT: [%w(. *)], FROM: [{ as: 'tutorial' }], WHERE: ['=', %w(. fname), 'Ian']).
+        to(WHAT: [%w(.)], FROM: [{ as: 'tutorial' }], WHERE: ['=', %w(. fname), 'Ian']).
         with_titles('tutorial')
     end
 
@@ -318,7 +310,7 @@ RSpec.describe N1ql::Query do
 
     it 'parses lesson 1.19 query' do
       is_expected.to compile_n1ql(lesson_1_19).
-        to(WHAT: [['COUNT', %w(. *)]],
+        to(WHAT: [['COUNT', %w(.)]],
            FROM: [{ as: 'tutorial' }]).
         with_titles('count')
     end
@@ -333,7 +325,7 @@ RSpec.describe N1ql::Query do
 
     it 'parses lesson 1.20 query' do
       is_expected.to compile_n1ql(lesson_1_20).
-        to(WHAT: [%w(. relation), ['COUNT', %w(. *)]],
+        to(WHAT: [%w(. relation), ['COUNT', %w(.)]],
            FROM: [{ as: 'tutorial' }],
            GROUP_BY: [%w(. relation)]).
         with_titles('relation', 'count')
@@ -350,10 +342,10 @@ RSpec.describe N1ql::Query do
 
     it 'parses lesson 1.21 query' do
       is_expected.to compile_n1ql(lesson_1_21).
-        to(WHAT: [%w(. relation), ['COUNT', %w(. *)]],
+        to(WHAT: [%w(. relation), ['COUNT', %w(.)]],
            FROM: [{ as: 'tutorial' }],
            GROUP_BY: [%w(. relation)],
-           HAVING: ['>', ['COUNT', %w(. *)], 1]).
+           HAVING: ['>', ['COUNT', %w(.)], 1]).
         with_titles('relation', 'count')
     end
 
@@ -390,11 +382,11 @@ RSpec.describe N1ql::Query do
 
     it 'parses lesson 1.23 (altered) query (Couchbase Lite doesn’t support UNNEST, replaced with JOIN)' do
       is_expected.to compile_n1ql(lesson_1_23_altered).
-        to(WHAT: [%w(. t relation), ['COUNT', %w(. *)], ['AVG', %w(. c age)]],
+        to(WHAT: [%w(. t relation), ['COUNT', %w(.)], ['AVG', %w(. c age)]],
            FROM: [{ as: 't' }, { as: 'c' }],
            WHERE: ['>', %w(. c age), 10],
            GROUP_BY: [%w(. t relation)],
-           HAVING: ['>', ['COUNT', %w(. *)], 1],
+           HAVING: ['>', ['COUNT', %w(.)], 1],
            ORDER_BY: ['DESC', %w(. avg_age)],
            LIMIT: 1,
            OFFSET: 1).

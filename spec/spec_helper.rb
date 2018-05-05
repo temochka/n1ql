@@ -19,7 +19,7 @@ RSpec::Matchers.define(:compile_n1ql) do |query_text, bindings = {}|
     begin
       query = N1ql::Query.new(query_text)
       actual_titles = query.titles
-      actual_ast = JSON.parse(query.compile(bindings), symbolize_names: true)
+      actual_ast = JSON.parse(query.compile, symbolize_names: true)
 
       ast_test = expected_ast && actual_ast == expected_ast || expected_ast.nil?
       titles_test = expected_titles && actual_titles == expected_titles || expected_titles.nil?

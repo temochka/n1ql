@@ -43,11 +43,18 @@ RSpec.describe N1ql::Precompiler do
 
     describe 'name' do
       specify { expect(compile(name: 'name')).to eq('name') }
+      specify { expect(compile(name: '*')).to be_empty }
     end
 
     describe 'path' do
       specify { expect(compile(path: [{ name: 'foo' }, { name: 'bar' }])).to eq(%w(. foo bar)) }
       specify { expect(compile(path: [{ name: 'foo' }, { index: { integer: '0' } }])).to eq(['.', 'foo', [0]]) }
+      specify { expect(compile(path: [{ name: '*' }])).to eq(['.']) }
+    end
+
+    describe 'parameter' do
+      specify { expect(compile(parameter: { name: 'foo' })).to eq(%w($ foo)) }
+      specify { expect(compile(parameter: [{ name: 'foo' }, { name: 'bar' }])).to eq(%w($ foo bar)) }
     end
 
     describe 'operator' do

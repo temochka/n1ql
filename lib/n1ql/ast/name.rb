@@ -7,7 +7,11 @@ module N1ql
       alias_method :compile, :name
 
       def initialize(name)
-        @name = name
+        @name = name == '*' ? '' : name.to_s
+      end
+
+      def empty?
+        name.to_s.empty?
       end
 
       def to_json(*args)

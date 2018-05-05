@@ -17,7 +17,7 @@ module N1ql
         if as
           as
         elsif expression.respond_to?(:id)
-          expression.id == '*' ? wildcard : expression.id
+          expression.id == '' ? wildcard : expression.id
         end
       end
 
