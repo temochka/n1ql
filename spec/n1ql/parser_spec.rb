@@ -152,6 +152,7 @@ RSpec.describe N1ql::Parser do
     describe 'name' do
       subject(:parser) { query_parser.name }
 
+      it { is_expected.to parse('_id') }
       it { is_expected.to_not parse('2Pac').as(name: '2Pac') }
       it { is_expected.to parse('Sting').as(name: 'Sting') }
       it { is_expected.to parse('Thirty6Kealo').as(name: 'Thirty6Kealo') }

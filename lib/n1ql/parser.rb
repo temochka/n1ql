@@ -137,7 +137,7 @@ module N1ql
 
     # Names
     rule(:escaped_name) { backtick.ignore >> (backtick.absent? >> any).repeat(1) >> backtick.ignore }
-    rule(:unescaped_name) { match('[a-zA-Z]') >> match('[\w\_]').repeat }
+    rule(:unescaped_name) { match('[a-zA-Z_]') >> match('[\w_]').repeat }
     rule(:name) { (unescaped_name | escaped_name).as(:name)  }
     rule(:simple_name) { name >> op_dot.absent? }
     rule(:_path) { (name >> op_lookup.repeat(0, 1) | star.as(:name)) >> (op_dot >> _path).repeat }
