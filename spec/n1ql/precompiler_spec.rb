@@ -61,6 +61,12 @@ RSpec.describe N1ql::Precompiler do
       specify { expect(compile(o: '+', l: { integer: '2' }, r: { integer: '3' })).to eq(['+', 2, 3]) }
     end
 
+    describe 'function' do
+      specify do
+        expect(compile(function: { name: 'COUNT' }, arguments: [{ path: [{ name: '*' }] }])).to eq(['COUNT()', %w(.)])
+      end
+    end
+
     describe 'ANY, EVERY' do
       %w(ANY EVERY).each do |pred|
         specify do

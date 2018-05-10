@@ -9,8 +9,8 @@ module N1ql
     rule(array: sequence(:array)) { Ast::Node.new(['[]', *array]) }
     rule(field: subtree(:field), value: subtree(:value)) { [field, value] }
     rule(object: subtree(:fields)) { Ast::Node.new(fields.to_h) }
-    rule(function: simple(:name), arguments: sequence(:arguments)) { Ast::Node.new([name, *arguments]) }
-    rule(function: simple(:name), arguments: simple(:argument)) { Ast::Node.new([name, argument]) }
+    rule(function: simple(:name), arguments: sequence(:arguments)) { Ast::Node.new(["#{name}()", *arguments]) }
+    rule(function: simple(:name), arguments: simple(:argument)) { Ast::Node.new(["#{name}()", argument]) }
 
     rule(o: simple(:o), l: subtree(:l), r: subtree(:r)) { Ast::Node.new([o, l, r]) }
 
