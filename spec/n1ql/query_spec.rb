@@ -22,7 +22,7 @@ RSpec.describe N1ql::Query do
 
     specify do
       is_expected.to compile_n1ql('SELECT name, GREATEST(width,depth) AS size FROM furniture ORDER BY size DESC').
-        to(WHAT: [%w(. name), ['GREATEST', %w(. width), %w(. depth)]],
+        to(WHAT: [%w(. name), ['GREATEST()', %w(. width), %w(. depth)]],
            FROM: [{ as: 'furniture' }],
            ORDER_BY: ['DESC', %w(. size)]).
         with_titles('name', 'size')
@@ -79,7 +79,7 @@ RSpec.describe N1ql::Query do
 
     it 'parses lesson 1.4 query' do
       is_expected.to compile_n1ql(lesson_1_4).
-        to(WHAT: [['META', %w(. tutorial)]],
+        to(WHAT: [['META()', %w(. tutorial)]],
            FROM: [ as: 'tutorial' ]).
         with_titles('meta')
     end
@@ -110,7 +110,7 @@ RSpec.describe N1ql::Query do
 
     it 'parses lesson 1.6 query' do
       is_expected.to compile_n1ql(lesson_1_6).
-        to(WHAT: [%w(. fname), %w(. age), ['ROUND', ['/', %w(. age), 7]]],
+        to(WHAT: [%w(. fname), %w(. age), ['ROUND()', ['/', %w(. age), 7]]],
            FROM: [{ as: 'tutorial' }],
            WHERE: ['=', %w(. fname), 'Dave']).
         with_titles('fname', 'age', 'age_dog_years')
@@ -220,7 +220,7 @@ RSpec.describe N1ql::Query do
       is_expected.to compile_n1ql(lesson_1_13).
         to(WHAT: [%w(. fname), %w(. email), %w(. children)],
            FROM: [{ as: 'tutorial' }],
-           WHERE: ['AND', ['>', ['ARRAY_LENGTH', %w(. children)], 0],
+           WHERE: ['AND', ['>', ['ARRAY_LENGTH()', %w(. children)], 0],
                    ['LIKE', %w(. email), '%@gmail.com']]).
         with_titles('fname', 'email', 'children')
     end
@@ -310,7 +310,7 @@ RSpec.describe N1ql::Query do
 
     it 'parses lesson 1.19 query' do
       is_expected.to compile_n1ql(lesson_1_19).
-        to(WHAT: [['COUNT', %w(.)]],
+        to(WHAT: [['COUNT()', %w(.)]],
            FROM: [{ as: 'tutorial' }]).
         with_titles('count')
     end
@@ -325,7 +325,7 @@ RSpec.describe N1ql::Query do
 
     it 'parses lesson 1.20 query' do
       is_expected.to compile_n1ql(lesson_1_20).
-        to(WHAT: [%w(. relation), ['COUNT', %w(.)]],
+        to(WHAT: [%w(. relation), ['COUNT()', %w(.)]],
            FROM: [{ as: 'tutorial' }],
            GROUP_BY: [%w(. relation)]).
         with_titles('relation', 'count')
@@ -342,10 +342,10 @@ RSpec.describe N1ql::Query do
 
     it 'parses lesson 1.21 query' do
       is_expected.to compile_n1ql(lesson_1_21).
-        to(WHAT: [%w(. relation), ['COUNT', %w(.)]],
+        to(WHAT: [%w(. relation), ['COUNT()', %w(.)]],
            FROM: [{ as: 'tutorial' }],
            GROUP_BY: [%w(. relation)],
-           HAVING: ['>', ['COUNT', %w(.)], 1]).
+           HAVING: ['>', ['COUNT()', %w(.)], 1]).
         with_titles('relation', 'count')
     end
 
@@ -382,11 +382,11 @@ RSpec.describe N1ql::Query do
 
     it 'parses lesson 1.23 (altered) query (Couchbase Lite doesn’t support UNNEST, replaced with JOIN)' do
       is_expected.to compile_n1ql(lesson_1_23_altered).
-        to(WHAT: [%w(. t relation), ['COUNT', %w(.)], ['AVG', %w(. c age)]],
+        to(WHAT: [%w(. t relation), ['COUNT()', %w(.)], ['AVG()', %w(. c age)]],
            FROM: [{ as: 't' }, { as: 'c' }],
            WHERE: ['>', %w(. c age), 10],
            GROUP_BY: [%w(. t relation)],
-           HAVING: ['>', ['COUNT', %w(.)], 1],
+           HAVING: ['>', ['COUNT()', %w(.)], 1],
            ORDER_BY: ['DESC', %w(. avg_age)],
            LIMIT: 1,
            OFFSET: 1).
