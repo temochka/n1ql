@@ -53,7 +53,7 @@ module N1ql
 
     rule(order_expression: subtree(:expression),
          order_direction: simple(:order)) do
-      [order || 'ASC', expression]
+      Ast::Node.new([order || 'ASC', expression])
     end
 
     rule(what: subtree(:what),

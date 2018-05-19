@@ -98,6 +98,10 @@ RSpec.describe N1ql::Precompiler do
       let(:barebone) { { distinct: nil, what: nil, from: nil, where: nil, group_by: nil, having: nil, order_by: nil, limit: nil, offset: nil } }
 
       specify { expect(compile(barebone.merge(from: { as: { name: 'foo' } }))).to eq(FROM: [{ as: 'foo' }])}
+      specify do
+        ast = barebone.merge(order_by: { order_expression: { path: [{ name: 'foo' }] }, order_direction: nil })
+        expect(compile(ast)).to eq(ORDER_BY: [['ASC', %w(. foo)]])
+      end
     end
   end
 end
