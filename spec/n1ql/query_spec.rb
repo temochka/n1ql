@@ -28,6 +28,13 @@ RSpec.describe N1ql::Query do
         with_titles('name', 'size')
     end
 
+    specify do
+      is_expected.to compile_n1ql('SELECT * LIMIT $limit OFFSET 5 + 5').
+        to(WHAT: [%w(.)],
+           LIMIT: %w($ limit),
+           OFFSET: ['+', 5, 5])
+    end
+
     let(:lesson_1_1) do
       <<-SQL
         SELECT 'Hello World' AS Greeting

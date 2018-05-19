@@ -217,8 +217,8 @@ module N1ql
         (ws >> keyword('GROUP') >> ws >> keyword('BY') >> ws >> group_by).maybe.as(:group_by) >>
         (ws >> keyword('HAVING') >> ws >> expression).maybe.as(:having) >>
         (ws >> keyword('ORDER') >> ws >> keyword('BY') >> ws >> order_by).maybe.as(:order_by) >>
-        (ws >> keyword('LIMIT') >> ws >> number).maybe.as(:limit) >>
-        (ws >> keyword('OFFSET') >> ws >> number).maybe.as(:offset) >>
+        (ws >> keyword('LIMIT') >> ws >> expression).maybe.as(:limit) >>
+        (ws >> keyword('OFFSET') >> ws >> expression).maybe.as(:offset) >>
         ws?
     end
 

@@ -63,8 +63,8 @@ module N1ql
          group_by: subtree(:group_by),
          having: subtree(:having),
          order_by: subtree(:order_by),
-         limit: subtree(:limit),
-         offset: subtree(:offset)) do
+         limit: simple(:limit),
+         offset: simple(:offset)) do
       Ast::Node.new({ WHAT: what && (what.is_a?(Array) ? what : [what]),
                       DISTINCT: (true if distinct),
                       FROM: from && (from.is_a?(Array) ? from : [from]),
