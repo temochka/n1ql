@@ -286,7 +286,7 @@ RSpec.describe N1ql::Query do
       is_expected.to compile_n1ql(lesson_1_17).
         to(WHAT: [%w(. fname), %w(. age)],
            FROM: [{ as: 'tutorial' }],
-           ORDER_BY: [['ASC', %w(. age)]]).
+           ORDER_BY: [%w(. age)]).
         with_titles('fname', 'age')
     end
 
@@ -303,7 +303,7 @@ RSpec.describe N1ql::Query do
       is_expected.to compile_n1ql(lesson_1_18).
         to(WHAT: [%w(. fname), %w(. age)],
            FROM: [{ as: 'tutorial' }],
-           ORDER_BY: [['ASC', %w(. age)]],
+           ORDER_BY: [%w(. age)],
            LIMIT: 2).
         with_titles('fname', 'age')
     end
