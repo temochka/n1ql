@@ -24,7 +24,7 @@ RSpec.describe N1ql::Query do
       is_expected.to compile_n1ql('SELECT name, GREATEST(width,depth) AS size FROM furniture ORDER BY size DESC').
         to(WHAT: [%w(. name), ['GREATEST()', %w(. width), %w(. depth)]],
            FROM: [{ as: 'furniture' }],
-           ORDER_BY: ['DESC', %w(. size)]).
+           ORDER_BY: [['DESC', %w(. size)]]).
         with_titles('name', 'size')
     end
 
@@ -279,7 +279,7 @@ RSpec.describe N1ql::Query do
       is_expected.to compile_n1ql(lesson_1_17).
         to(WHAT: [%w(. fname), %w(. age)],
            FROM: [{ as: 'tutorial' }],
-           ORDER_BY: ['ASC', %w(. age)]).
+           ORDER_BY: [['ASC', %w(. age)]]).
         with_titles('fname', 'age')
     end
 
@@ -296,7 +296,7 @@ RSpec.describe N1ql::Query do
       is_expected.to compile_n1ql(lesson_1_18).
         to(WHAT: [%w(. fname), %w(. age)],
            FROM: [{ as: 'tutorial' }],
-           ORDER_BY: ['ASC', %w(. age)],
+           ORDER_BY: [['ASC', %w(. age)]],
            LIMIT: 2).
         with_titles('fname', 'age')
     end
@@ -387,7 +387,7 @@ RSpec.describe N1ql::Query do
            WHERE: ['>', %w(. c age), 10],
            GROUP_BY: [%w(. t relation)],
            HAVING: ['>', ['COUNT()', %w(.)], 1],
-           ORDER_BY: ['DESC', %w(. avg_age)],
+           ORDER_BY: [['DESC', %w(. avg_age)]],
            LIMIT: 1,
            OFFSET: 1).
         with_titles('relation', 'count', 'avg_age')
