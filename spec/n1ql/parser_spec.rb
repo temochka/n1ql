@@ -193,6 +193,9 @@ RSpec.describe N1ql::Parser do
 
       it { is_expected.to parse('ARRAY child.fname FOR child IN tutorial.children END') }
 
+      it { is_expected.to parse('1 <= 1').as(o: '<=', l: { integer: '1' }, r: { integer: '1' }) }
+      it { is_expected.to parse('1 >= 1').as(o: '>=', l: { integer: '1' }, r: { integer: '1' }) }
+
       it {
         is_expected.to parse('(1+2)/(4-5*6) || "geese"').
           as(o: '||',
