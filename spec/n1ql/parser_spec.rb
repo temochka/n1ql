@@ -23,6 +23,12 @@ RSpec.describe N1ql::Parser do
       it { is_expected.to parse('NULL').as(null: 'NULL') }
     end
 
+    describe 'MISSING' do
+      subject(:parser) { query_parser.missing }
+
+      it { is_expected.to parse('MISSING').as(missing: 'MISSING') }
+    end
+
     describe 'boolean' do
       subject(:parser) { query_parser.boolean }
 

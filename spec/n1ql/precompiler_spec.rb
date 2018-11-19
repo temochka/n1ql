@@ -14,6 +14,10 @@ RSpec.describe N1ql::Precompiler do
       specify { expect(compile(null: 'NULL')).to be_nil }
     end
 
+    describe 'MISSING' do
+      specify { expect(compile(missing: 'MISSING')).to eq(%w(MISSING)) }
+    end
+
     describe 'boolean' do
       specify { expect(compile(boolean: 'TRUE')).to eq(true) }
       specify { expect(compile(boolean: 'true')).to eq(true) }

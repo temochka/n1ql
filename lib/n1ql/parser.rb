@@ -108,7 +108,7 @@ module N1ql
     end
 
     # Type literals
-    rule(:type_literal) { null | boolean | number | string | array | object }
+    rule(:type_literal) { null | missing | boolean | number | string | array | object }
 
     # 1. Boolean
     rule(:boolean) { (keyword('TRUE') | keyword('FALSE')).as(:boolean) }
@@ -132,8 +132,9 @@ module N1ql
     rule(:field) { expression.as(:field) >> colon >> expression.as(:value) }
     rule(:object) { lbrace >> ((field >> comma).repeat >> field.maybe).as(:object) >> rbrace }
 
-    # 6. NULL
+    # 6. NULL/MISSING
     rule(:null) { keyword('NULL', as: :null) }
+    rule(:missing) { keyword('MISSING', as: :missing) }
 
     # Names
     rule(:escaped_name) { backtick.ignore >> (backtick.absent? >> any).repeat(1) >> backtick.ignore }

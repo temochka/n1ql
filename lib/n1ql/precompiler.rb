@@ -1,6 +1,7 @@
 module N1ql
   class Precompiler < Parslet::Transform
     rule(null: simple(:_)) { nil }
+    rule(missing: simple(:_)) { Ast::Node.new(%w(MISSING)) }
     rule(boolean: /\Atrue\Z/i) { true }
     rule(boolean: /\Afalse\Z/i) { false }
     rule(integer: simple(:int)) { Integer(int) }

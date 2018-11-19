@@ -199,6 +199,22 @@ RSpec.describe N1ql::Query do
         with_titles('fname', 'children')
     end
 
+    let(:lesson_1_11_missing) do
+      <<-SQL
+        SELECT fname, children
+        FROM tutorial
+        WHERE children IS MISSING
+      SQL
+    end
+
+    it 'parses lesson 1.11 query with MISSING statement' do
+      is_expected.to compile_n1ql(lesson_1_11_missing).
+        to(WHAT: [%w(. fname), %w(. children)],
+           FROM: [{ as: 'tutorial' }],
+           WHERE: ['IS', %w(. children), %w(MISSING)]).
+        with_titles('fname', 'children')
+    end
+
     let(:lesson_1_12) do
       <<-SQL
         SELECT fname, children
