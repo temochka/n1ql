@@ -1,5 +1,9 @@
 module N1ql
   class Parser < Parslet::Parser
+    KEYWORDS = %w(SELECT DISTINCT FROM WHERE GROUP BY HAVING ORDER LIMIT OFFSET NOT NULL MISSING TRUE FALSE
+                  ANY EVERY SATISFIES END ARRAY FOR WHEN OR AND LIKE IN WITHIN IS CASE THEN ELSE AS ON JOIN UNNEST
+                  ASC DESC)
+
     # Helpers
     def trimmed(atom)
       ws? >> atom >> ws?
@@ -7,6 +11,7 @@ module N1ql
 
     # Keywords
     def keyword(str, as: nil)
+      raise "Unknown keyword #{str}" unless KEYWORDS.include?(str)
       atom = str.chars.map! { |char| match["#{char.upcase}#{char.downcase}"] }.reduce(:>>)
       ws? >>
         (as ? atom.as(as) : atom) >>
@@ -137,13 +142,16 @@ module N1ql
     rule(:missing) { keyword('MISSING', as: :missing) }
 
     # Names
+    rule(:any_keyword) { KEYWORDS.map { |k| keyword(k) }.reduce(:|) }
     rule(:escaped_name) { backtick.ignore >> (backtick.absent? >> any).repeat(1) >> backtick.ignore }
     rule(:unescaped_name) { match('[a-zA-Z_]') >> match('[\w_]').repeat }
-    rule(:name) { (unescaped_name | escaped_name).as(:name)  }
+    rule(:name) { (any_keyword.absent? >> unescaped_name | escaped_name).as(:name)  }
+    rule(:unsafe_name) { (unescaped_name | escaped_name).as(:name) }
     rule(:simple_name) { name >> op_dot.absent? }
     rule(:_path) { (name >> op_lookup.repeat(0, 1) | star.as(:name)) >> (op_dot >> _path).repeat }
     rule(:path) { _path.as(:path) }
-    rule(:parameter) { (str('$').ignore >> _path).as(:parameter) }
+    rule(:_unsafe_path) { (unsafe_name >> op_lookup.repeat(0, 1) | star.as(:name)) >> (op_dot >> _unsafe_path).repeat }
+    rule(:parameter) { (str('$').ignore >> _unsafe_path).as(:parameter) }
 
     # Functions
     rule(:arguments) { (expression >> comma).repeat >> expression.repeat(1, 1) }
@@ -192,8 +200,17 @@ module N1ql
       simple_name.as(:as) >> (ws >> keyword('ON') >> ws >> expression.as(:on)).maybe
     end
 
+    rule(:unnest) do
+      keyword('UNNEST') >> ws >> path.as(:unnest) >> (keyword('AS').maybe >> ws >> simple_name.as(:as)).maybe
+    end
+
+    rule(:join) do
+      keyword('JOIN') >> ws >> data_source
+    end
+
     rule(:data_sources) do
-       data_source >> (ws >> keyword('JOIN') >> ws >> data_source).repeat
+       data_source >>
+         (ws >> (join | unnest)).repeat
     end
 
     rule(:ordering_term) do

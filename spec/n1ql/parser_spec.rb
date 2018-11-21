@@ -160,6 +160,8 @@ RSpec.describe N1ql::Parser do
 
       it { is_expected.to parse('_id') }
       it { is_expected.to_not parse('2Pac').as(name: '2Pac') }
+      it { is_expected.to_not parse('WHERE').as(name: 'WHERE') }
+      it { is_expected.to parse('`WHERE`').as(name: 'WHERE') }
       it { is_expected.to parse('Sting').as(name: 'Sting') }
       it { is_expected.to parse('Thirty6Kealo').as(name: 'Thirty6Kealo') }
       it { is_expected.to parse('`King William III`').as(name: 'King William III') }
@@ -168,6 +170,10 @@ RSpec.describe N1ql::Parser do
     describe 'path' do
       subject(:parser) { query_parser.path }
 
+      it { is_expected.to parse('foo').as(path: { name: 'foo' }) }
+      it { is_expected.to_not parse('FROM').as(path: [{name: 'FROM' }]) }
+      it { is_expected.to_not parse('FROM.WHERE').as(path: [{ name: 'FROM' }, { name: 'WHERE' }]) }
+      it { is_expected.to parse('`FROM`.`WHERE`').as(path: [{ name: 'FROM' }, { name: 'WHERE' }]) }
       it { is_expected.to parse('Buckethead[1]').as(path: [{ name: 'Buckethead' }, { index: { integer: '1' } }]) }
       it { is_expected.to parse('Buckethead  [11]').as(path: [{ name: 'Buckethead' }, { index: { integer: '11' } }]) }
       it { is_expected.to parse('`Buckethead[2]`[1]').as(path: [ { name: 'Buckethead[2]' }, { index: { integer: '1' } } ]) }
@@ -192,6 +198,7 @@ RSpec.describe N1ql::Parser do
       it { is_expected.to parse('NOT flag').as(op_not: { path: { name: 'flag' } }) }
       it { is_expected.to parse('$name').as(parameter: { name: 'name' }) }
       it { is_expected.to parse('$object.value').as(parameter: [{ name: 'object' }, { name: 'value' }]) }
+      it { is_expected.to parse('$WHERE').as(parameter: { name: 'WHERE' }) }
 
       %w(/ * + - % LIKE).each do |op|
         it { is_expected.to parse("age #{op} 2").as(o: op, l: { path: { name: 'age' } }, r: { integer: '2' }) }
@@ -272,6 +279,26 @@ RSpec.describe N1ql::Parser do
                       l: { path: [{ name: 'receipt' }, { name: 'user_id' }] },
                       r: { path: [{ name: 'user' }, { name: 'id' }] } }}])
       }
+
+      it {
+        is_expected.to parse('user UNNEST user.credit_cards').
+          as([{ as: { name: 'user' } },
+              { unnest: { path: [{ name: 'user' }, { name: 'credit_cards' }] } }])
+      }
+
+      it {
+        is_expected.to parse('user UNNEST user.credit_cards cc').
+          as([{ as: { name: 'user' } },
+              { unnest: { path: [{ name: 'user' }, { name: 'credit_cards' }] }, as: { name: 'cc' } }])
+      }
+
+      it {
+        is_expected.to parse('user JOIN receipt UNNEST user.credit_cards AS cc').
+          as([{ as: { name: 'user' } },
+              { as: { name: 'receipt' } },
+              { unnest: { path: [{ name: 'user' }, { name: 'credit_cards' } ] },
+                as: { name: 'cc' } }])
+      }
     end
 
     describe 'ORDER BY' do
@@ -306,7 +333,7 @@ RSpec.describe N1ql::Parser do
       it {
         is_expected.to parse('SELECT * WHERE 1=1').
           as(barebone.merge(what: { column: { path: { name: '*' } }, as: nil },
-                           where: { o: '=', l: { integer: '1' }, r: { integer: '1' } }))
+                            where: { o: '=', l: { integer: '1' }, r: { integer: '1' } }))
       }
 
       it {

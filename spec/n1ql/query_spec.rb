@@ -390,23 +390,23 @@ RSpec.describe N1ql::Query do
         with_titles('parent_name', 'child_names')
     end
 
-    let(:lesson_1_23_altered) do
+    let(:lesson_1_23) do
       <<-SQL
         SELECT t.relation, COUNT(*) AS count, AVG(c.age) AS avg_age
-        FROM t JOIN c
+        FROM t
+        UNNEST t.children c
         WHERE c.age > 10
         GROUP BY t.relation
         HAVING COUNT(*) > 1
         ORDER BY avg_age DESC
-        LIMIT 1
-        OFFSET 1
+        LIMIT 1 OFFSET 1
       SQL
     end
 
-    it 'parses lesson 1.23 (altered) query (Couchbase Lite doesn’t support UNNEST, replaced with JOIN)' do
-      is_expected.to compile_n1ql(lesson_1_23_altered).
+    it 'parses lesson 1.23 query' do
+      is_expected.to compile_n1ql(lesson_1_23).
         to(WHAT: [%w(. t relation), ['COUNT()', %w(.)], ['AVG()', %w(. c age)]],
-           FROM: [{ as: 't' }, { as: 'c' }],
+           FROM: [{ as: 't' }, { as: 'c', unnest: %w(. t children) }],
            WHERE: ['>', %w(. c age), 10],
            GROUP_BY: [%w(. t relation)],
            HAVING: ['>', ['COUNT()', %w(.)], 1],
@@ -462,21 +462,25 @@ RSpec.describe N1ql::Query do
     let(:lesson_2_4) do
       <<-SQL
         SELECT * 
-        FROM tutorial AS parent
+        FROM parent
         UNNEST parent.children
         WHERE parent.fname = 'Dave'
       SQL
     end
 
-    it 'fails to parse lesson 2.4 query' do
-      is_expected.to compile_n1ql(lesson_2_4).with_error(N1ql::ParserError)
+    it 'parses lesson 2.4 query' do
+      is_expected.to compile_n1ql(lesson_2_4).
+        to(WHAT: [%w(.)],
+           FROM: [{ as: 'parent'}, { unnest: %w(. parent children)}],
+           WHERE: ['=', %w(. parent fname), 'Dave']).
+        with_titles('parent')
     end
 
     let(:lesson_2_5) do
       <<-SQL
-        SELECT  u.personal_details.display_name name, s AS order_no, o.product_details  
-        FROM users_with_orders u USE KEYS "Aide_48687583" 
-        UNNEST u.shipped_order_history s 
+        SELECT u.personal_details.display_name name, s AS order_no, o.product_details
+        FROM users_with_orders u USE KEYS "Aide_48687583"
+        UNNEST u.shipped_order_history s
         JOIN users_with_orders o ON KEYS s.order_id
       SQL
     end

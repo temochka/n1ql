@@ -22,6 +22,9 @@ module N1ql
     rule(parameter: sequence(:names)) { Ast::Path.new(names, '$') }
     rule(parameter: simple(:name)) { Ast::Path.new([name], '$') }
 
+    rule(unnest: simple(:unnest), as: simple(:as)) { Ast::Node.new(unnest: unnest, as: as) }
+    rule(unnest: simple(:unnest)) { Ast::Node.new(unnest: unnest) }
+
     rule(as: simple(:as)) { Ast::Node.new(as: as) }
     rule(as: simple(:as), on: simple(:on)) { Ast::Node.new(as: as, on: on) }
 

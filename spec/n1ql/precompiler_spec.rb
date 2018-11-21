@@ -98,6 +98,18 @@ RSpec.describe N1ql::Precompiler do
       specify { expect(compile(column: { name: 'foo' }, as: 'bar').name).to eq('bar') }
     end
 
+    describe 'unnest' do
+      specify {
+        expect(compile(unnest: { path: [{ name: 'user' }, { name: 'credit_cards' }] })).
+          to eq(unnest: %w(. user credit_cards))
+      }
+
+      specify {
+        expect(compile(unnest: { path: [{ name: 'user' }, { name: 'credit_cards' }] }, as: 'cc')).
+          to eq(unnest: %w(. user credit_cards), as: 'cc')
+      }
+    end
+
     describe 'query' do
       let(:barebone) { { distinct: nil, what: nil, from: nil, where: nil, group_by: nil, having: nil, order_by: nil, limit: nil, offset: nil } }
 
